@@ -15,15 +15,19 @@ version = 1.0
 
 # 🚀 Sabse important: Requirements (KivyMD aur baaki cheezein)
 requirements = python3, kivy==2.3.0, kivymd, pillow
+
 # File manager aur quiz ke liye storage permissions
 android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE
 
 # Screen orientation (Phone ke hisaab se portrait)
 orientation = portrait
 
-# Android API Target
-android.api = 33
+# Android API Target (34 is best now)
+android.api = 34
 android.minapi = 21
+
+# 🛑 YAHAN HAI SABSE ZAROORI LINE (Aapka error fix karne ke liye)
+android.accept_sdk_license = True
 
 [buildozer]
 # Log level
