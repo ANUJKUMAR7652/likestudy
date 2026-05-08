@@ -1,6 +1,10 @@
 name: Build APK with Buildozer
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   build:
@@ -15,7 +19,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 🚀 YAHAN HAI TURBO ENGINE (CACHING)
       - name: Cache Buildozer data
         uses: actions/cache@v4
         with:
@@ -35,7 +38,6 @@ jobs:
         run: |
           yes | buildozer android debug
         env:
-          # Isse licenses apne aap accept ho jayenge
           BUILDOZER_ALLOW_ORG_NAME_AS_PROJECT_NAME: 1
 
       - name: Upload APK
