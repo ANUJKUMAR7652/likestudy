@@ -8,7 +8,8 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    # Humne version ko '22.04' par fix kar diya hai stability ke liye
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout code
@@ -36,7 +37,8 @@ jobs:
 
       - name: Build APK with Buildozer
         run: |
-          yes | buildozer android debug
+          # 'yes' command ki jagah 'auto_allow' use kar rahe hain taaki 'Broken pipe' na aaye
+          buildozer android debug || buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_AS_PROJECT_NAME: 1
 
