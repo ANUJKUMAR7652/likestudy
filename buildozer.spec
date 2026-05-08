@@ -1,5 +1,5 @@
 [app]
-# App ka naam
+# App ka naamm
 title = StudyLike PRO
 
 # Package ka naam (Space nahi hona chahiye)
