@@ -21,13 +21,15 @@ jobs:
 
       - name: Install Python Dependencies (Buildozer & Cython)
         run: |
-          # --break-system-packages फ्लैग नए Ubuntu सिस्टम के लिए ज़रूरी है
+          # Buildozer इंस्टॉल करें
           pip3 install --user --upgrade buildozer "cython<3.0.0" virtualenv --break-system-packages
+          
+          # 🚀 यहाँ सबसे ज़रूरी बदलाव है: Buildozer को Path में जोड़ना
+          echo "PATH=$PATH:$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Build APK (इसमें 15-20 मिनट लग सकते हैं)
         run: |
-          export PATH=$PATH:~/.local/bin
-          # यह कमांड आपकी buildozer.spec फाइल के आधार पर APK बनाएगा
+          # अब सिस्टम buildozer कमांड को पहचान लेगा
           buildozer android debug
 
       - name: Upload APK File
