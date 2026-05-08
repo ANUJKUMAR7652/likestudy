@@ -14,7 +14,7 @@ source.include_exts = py,png,jpg,kv,atlas,ttf,wav,csv
 version = 1.0
 
 # 🚀 Sabse important: Requirements (KivyMD aur baaki cheezein)
-requirements = python3, kivy==2.3.0, kivymd, pillow
+requirements = python3, kivy==2.3.0, kivymd, pillow==10.2.0, urllib3
 
 # File manager aur quiz ke liye storage permissions
 android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE
