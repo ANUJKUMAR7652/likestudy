@@ -21,12 +21,13 @@ jobs:
 
       - name: Install Python Dependencies (Buildozer & Cython)
         run: |
-          # Cython ka purana version lagana zaroori hai Kivy ke liye, nahi toh error aayega
-          pip3 install --user --upgrade buildozer "cython<3.0.0" virtualenv
+          # --break-system-packages फ्लैग नए Ubuntu सिस्टम के लिए ज़रूरी है
+          pip3 install --user --upgrade buildozer "cython<3.0.0" virtualenv --break-system-packages
 
-      - name: Build APK (Isme 10-15 minute lag sakte hain)
+      - name: Build APK (इसमें 15-20 मिनट लग सकते हैं)
         run: |
           export PATH=$PATH:~/.local/bin
+          # यह कमांड आपकी buildozer.spec फाइल के आधार पर APK बनाएगा
           buildozer android debug
 
       - name: Upload APK File
