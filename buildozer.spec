@@ -30,14 +30,16 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          # Maine yahan 'libunwind-dev' add kar diya hai jo error de raha tha
+          # Force fix for broken dependencies
+          sudo apt-get install -y -f
           sudo apt-get install -y python3-pip build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libunwind-dev
           pip install --upgrade pip
           pip install buildozer cython==0.29.33 kivy
 
       - name: Build APK with Buildozer
         run: |
-          buildozer android debug || buildozer android debug
+          # Yahan 'yes' command hatakar simple rakha hai taaki pipe error na aaye
+          buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_AS_PROJECT_NAME: 1
 
