@@ -3,11 +3,6 @@ name: Build APK with Buildozer
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   build:
@@ -28,12 +23,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # Naya Cache Key (v5) taaki purana kachra na aaye
       - name: Cache Buildozer data
         uses: actions/cache@v4
         with:
           path: .buildozer
-          key: ${{ runner.os }}-buildozer-v5-${{ hashFiles('buildozer.spec') }}
+          key: ${{ runner.os }}-buildozer-v6-${{ hashFiles('buildozer.spec') }}
 
       - name: Install dependencies
         run: |
@@ -43,9 +37,7 @@ jobs:
           pip install "buildozer>=1.5.0" cython==0.29.33 kivy
 
       - name: Build APK with Buildozer
-        run: |
-          # Isse saare licenses auto-accept honge aur missing API download ho jayegi
-          yes | buildozer android debug
+        run: yes | buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_AS_PROJECT_NAME: 1
 
