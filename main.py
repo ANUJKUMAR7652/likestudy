@@ -359,15 +359,34 @@ class LikeStudyApp(MDApp):
         return self.manager
 
     def on_start(self):
-        # 🔓 Android me App khulte hi permission maangna
         if platform == 'android':
             from android.permissions import request_permissions, Permission
-            request_permissions([
-                Permission.READ_EXTERNAL_STORAGE,
-                Permission.WRITE_EXTERNAL_STORAGE,
-                Permission.MANAGE_EXTERNAL_STORAGE
-            ])
+            from android import api_version
+            
+            # Normal permissions maangna
+            permissions = [Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE]
+            request_permissions(permissions)
 
+            # 🚀 Android 11 (API 30) ya usse upar ke liye Special Access check
+            if api_version >= 30:
+                from jnius import autoclass, cast
+                PythonActivity = autoclass('org.kivy.android.PythonActivity')
+                Environment = autoclass('android.os.Environment')
+                Intent = autoclass('android.content.Intent')
+                Settings = autoclass('android.provider.Settings')
+                Uri = autoclass('android.net.Uri')
+                
+                # Check kya permission pehle se hai?
+                if not Environment.isExternalStorageManager():
+                    # Agar nahi hai, toh user ko Settings page par bhejo
+                    try:
+                        uri = Uri.parse("package:" + PythonActivity.mActivity.getPackageName())
+                        intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri)
+                        PythonActivity.mActivity.startActivity(intent)
+                    except:
+                        # Fallback agar package name na mile
+                        intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                        PythonActivity.mActivity.startActivity(intent)
     def open_file_manager(self):
         # 📂 Default storage path for Android
         path = '/storage/emulated/0/' if platform == 'android' else os.getcwd()
