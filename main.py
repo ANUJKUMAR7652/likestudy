@@ -1,15 +1,15 @@
 import os
+from kivy.resources import resource_add_path
+from kivy.core.text import LabelBase
 import csv
 import math
 from kivy.lang import Builder
 from kivy.clock import Clock
-from kivy.core.text import LabelBase
 from kivy.core.window import Window
 from kivy.core.audio import SoundLoader
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivymd.app import MDApp
 from kivymd.uix.filemanager import MDFileManager
-from kivy.resources import resource_add_path
 from kivymd.uix.card import MDCard
 from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDIconButton
@@ -18,16 +18,38 @@ from kivy.uix.button import Button
 from kivy.utils import platform
 
 # ==========================================
-# 🌍 FONT SETUP (Update)
+# 1. Sabse pehle curr_dir define karein (Isse NameError khatam hoga)
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+resource_add_path(curr_dir)
+
+# 2. Font Setup (Naam check kar lein jo folder mein ho)
 # ==========================================
+# 🌍 DIRECTORY & FONT SETUP (Fixed NameError)
+# ==========================================
+# Sabse pehle curr_dir define karein taaki error na aaye
+curr_dir = os.path.dirname(os.path.abspath(__file__))
+resource_add_path(curr_dir)
+
 U_FONT = "HindiFont"
-FONT_FILE = "hindi.ttf" # Naya download kiya hua font
+# Hum ab aapki nayi file 'hindi.ttf' use karenge
+FONT_FILE = "hindi.ttf" 
 
 if os.path.exists(os.path.join(curr_dir, FONT_FILE)):
     LabelBase.register(name=U_FONT, fn_regular=FONT_FILE)
+    print(f"DEBUG: {FONT_FILE} registered successfully!")
 else:
-    U_FONT = "Roboto"
-
+    # Fallback: Agar kisi wajah se hindi.ttf na mile toh purani files check karein
+    alt_fonts = ["universal.ttf", "devanagari.ttf"]
+    found = False
+    for f in alt_fonts:
+        if os.path.exists(os.path.join(curr_dir, f)):
+            LabelBase.register(name=U_FONT, fn_regular=f)
+            print(f"DEBUG: Falling back to {f}")
+            found = True
+            break
+    if not found:
+        print("DEBUG: No Hindi font found, using Roboto")
+        U_FONT = "Roboto"
 # ==========================================
 # 🧠 APP LOGIC (SCREENS)
 # ==========================================
