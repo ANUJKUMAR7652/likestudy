@@ -15,14 +15,10 @@ from kivymd.uix.label import MDLabel
 from kivymd.uix.button import MDIconButton
 from kivy.metrics import dp
 from kivy.uix.button import Button
+from kivy.utils import platform
 
 # ==========================================
-# 📱 PC पर मोबाइल स्क्रीन साइज सेट करें
-# ==========================================
-Window.size = (360, 640)
-
-# ==========================================
-# 🌍 UNIVERSAL FONT SETUP
+# 🌍 FONT SETUP
 # ==========================================
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 resource_add_path(curr_dir)
@@ -32,15 +28,12 @@ FONT_FILE = "devanagari.ttf"
 
 if os.path.exists(os.path.join(curr_dir, FONT_FILE)):
     LabelBase.register(name=U_FONT, fn_regular=FONT_FILE)
-    print("✅ Universal Font Loaded!")
 else:
     U_FONT = "Roboto"
-    print("⚠️ Warning: Font not found. Using default.")
 
 # ==========================================
 # 🧠 APP LOGIC (SCREENS)
 # ==========================================
-
 class HomeScreen(Screen):
     pass
 
@@ -56,19 +49,13 @@ class QuizScreen(Screen):
         self.time_limit = 7.0  
         self.last_tick_sec = 7 
         
-        # 🎵 साउंड फाइल्स लोड करें
-        curr_dir = os.path.dirname(os.path.abspath(__file__))
         tick_path = os.path.join(curr_dir, 'tick.wav')
         correct_path = os.path.join(curr_dir, 'correct.wav')
         
         self.tick_snd = SoundLoader.load(tick_path) if os.path.exists(tick_path) else None
         self.correct_snd = SoundLoader.load(correct_path) if os.path.exists(correct_path) else None
-        
-        if self.correct_snd:
-            print("✅ correct.wav loaded successfully!")
 
     def start_quiz(self, data):
-        # CSV Header चेक
         if data and data[0][0].lower() in ['q', 'question', 'प्रश्न', 'सवाल']:
             self.questions = data[1:]
         else:
@@ -86,7 +73,6 @@ class QuizScreen(Screen):
             self.ids.opt4.text = f"D: {q[4]}"
             self.correct_ans = str(q[5]).strip().upper()
             
-            # प्रोग्रेस ट्रैकर
             total_q = len(self.questions)
             curr_q = self.current_index + 1
             self.ids.q_tracker.text = f"प्रश्न: {curr_q} / {total_q}"
@@ -113,14 +99,12 @@ class QuizScreen(Screen):
             self.ids.timer_lbl.text = str(max(0, current_sec))
             self.ids.prog_bar.value = (self.counter / self.time_limit) * 100
             
-            # हर सेकंड टिक साउंड
             if current_sec < self.last_tick_sec:
-                if self.tick_snd:
-                    self.tick_snd.play()
+                if self.tick_snd: self.tick_snd.play()
                 self.last_tick_sec = current_sec
         else:
             self.ids.prog_bar.value = 0
-            self.reveal_correct() # टाइमर खत्म होने पर ऑटो-रिवील
+            self.reveal_correct()
             return False
 
     def check_answer(self, choice):
@@ -128,12 +112,9 @@ class QuizScreen(Screen):
         if self.tick_snd: self.tick_snd.stop()
             
         mapping = {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}
-        
-        # गलत जवाब को लाल करें
         if choice != self.correct_ans:
             self.ids[mapping[choice]].md_bg_color = (0.8, 0, 0, 1)
             
-        # सही जवाब को हमेशा ग्रीन करें और साउंड बजाएं
         if self.correct_ans in mapping:
             self.ids[mapping[self.correct_ans]].md_bg_color = (0, 0.8, 0, 1)
             if self.correct_snd:
@@ -146,7 +127,6 @@ class QuizScreen(Screen):
         if self.tick_snd: self.tick_snd.stop()
         mapping = {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}
         
-        # ऑटोमैटिक ग्रीन और साउंड
         if self.correct_ans in mapping:
             self.ids[mapping[self.correct_ans]].md_bg_color = (0, 0.8, 0, 1)
             if self.correct_snd:
@@ -188,11 +168,13 @@ KV = f'''
             padding: dp(20)
             spacing: dp(15)
             
+            # Button fixed to 90% screen width
             MDRectangleFlatIconButton:
                 icon: "plus-circle"
                 text: "ADD NEW CSV FILE"
                 pos_hint: {{"center_x": .5}}
-                width: dp(250)
+                size_hint_x: 0.9 
+                height: dp(50)
                 font_name: "{U_FONT}"
                 line_color: 0, 1, 1, 1
                 text_color: 0, 1, 1, 1
@@ -244,42 +226,13 @@ KV = f'''
                 theme_text_color: "Custom"
                 text_color: 1, 1, 1, 1
                 
-            MDCard:
-                orientation: "vertical"
-                padding: dp(15)
-                spacing: dp(15)
-                md_bg_color: 0.1, 0.1, 0.25, 1
-                radius: [15,]
-                size_hint_y: None
-                height: dp(150)
-                
-                MDLabel:
-                    text: "App Settings"
-                    font_style: "H6"
-                    theme_text_color: "Custom"
-                    text_color: 1, 0, 1, 1
-                    
-                MDBoxLayout:
-                    MDLabel:
-                        text: "Sound Effects"
-                        theme_text_color: "Custom"
-                        text_color: 1, 1, 1, 1
-                    MDSwitch:
-                        active: True
-                        
-                MDBoxLayout:
-                    MDLabel:
-                        text: "Dark Mode"
-                        theme_text_color: "Custom"
-                        text_color: 1, 1, 1, 1
-                    MDSwitch:
-                        active: True
             Widget:
             MDFillRoundFlatIconButton:
                 icon: "home"
                 text: "BACK TO HOME"
                 font_name: "{U_FONT}"
                 pos_hint: {{"center_x": .5}}
+                size_hint_x: 0.8
                 md_bg_color: 0, 0.5, 0.8, 1
                 on_release: app.go_home()
 
@@ -369,7 +322,6 @@ KV = f'''
                 font_size: "16sp"
                 on_release: root.check_answer("D")
 
-        # सीक्रेट पारदर्शी एग्जिट बटन
         Button:
             text: ""
             size_hint: 1, None
@@ -383,13 +335,11 @@ KV = f'''
 # ==========================================
 # ⚙️ MAIN APP CLASS
 # ==========================================
-
 class LikeStudyApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Cyan"
         
-        # कस्टम फॉन्ट स्टाइल्स
         self.theme_cls.font_styles["H3"] = [U_FONT, 48, False, 0.15]
         self.theme_cls.font_styles["H5"] = [U_FONT, 24, False, 0.15]
         self.theme_cls.font_styles["H6"] = [U_FONT, 20, False, 0.15]
@@ -400,14 +350,27 @@ class LikeStudyApp(MDApp):
         self.manager.add_widget(QuizScreen(name='quiz'))
         self.manager.add_widget(ProfileScreen(name='profile')) 
         
+        # 📂 File Manager with Strict CSV Filter
         self.file_manager = MDFileManager(
             exit_manager=self.close_file_manager,
-            select_path=self.select_path
+            select_path=self.select_path,
+            ext=[".csv"]  # Yeh sirf CSV files dikhayega
         )
         return self.manager
 
+    def on_start(self):
+        # 🔓 Android me App khulte hi permission maangna
+        if platform == 'android':
+            from android.permissions import request_permissions, Permission
+            request_permissions([
+                Permission.READ_EXTERNAL_STORAGE,
+                Permission.WRITE_EXTERNAL_STORAGE,
+                Permission.MANAGE_EXTERNAL_STORAGE
+            ])
+
     def open_file_manager(self):
-        path = os.getenv('EXTERNAL_STORAGE', os.getcwd())
+        # 📂 Default storage path for Android
+        path = '/storage/emulated/0/' if platform == 'android' else os.getcwd()
         self.file_manager.show(path)
 
     def select_path(self, path):
@@ -416,7 +379,6 @@ class LikeStudyApp(MDApp):
             filename = os.path.basename(path)
             home_screen = self.manager.get_screen('home')
             
-            # लिस्ट में नया क्विज़ कार्ड जोड़ें
             card = MDCard(size_hint_y=None, height=dp(60), md_bg_color=(0.1, 0.1, 0.25, 1),
                           radius=[10,], line_color=(0, 1, 1, 1), padding=dp(10))
             lbl = MDLabel(text=filename, theme_text_color="Custom", text_color=(1, 1, 1, 1), font_name=U_FONT)
