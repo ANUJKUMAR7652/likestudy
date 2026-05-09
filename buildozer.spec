@@ -1,39 +1,50 @@
-[app]
-# App ka naam
-title = StudyLike PRO
+name: Build APK with Buildozer
 
-# Package ka naam (Unique hona chahiye)
-package.name = studylikepro
-package.domain = org.studylike
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-# Kahan se files uthani hain
-source.dir = .
-source.include_exts = py,png,jpg,kv,atlas,ttf,wav,csv
-source.include_patterns = assets/*,images/*.png
+jobs:
+  build:
+    # 22.04 sabse stable hai Buildozer ke liye
+    runs-on: ubuntu-22.04
 
-# App ka version
-version = 1.0
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-# 🚀 Requirements: Inhe dhyan se dekhiye
-requirements = python3, kivy==2.3.0, kivymd, pillow==10.2.0, urllib3
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
-# File manager aur quiz ke liye storage permissions
-android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
+      # 🚀 TURBO ENGINE (Fresh Start ke liye ise pehli baar chalne dein)
+      - name: Cache Buildozer data
+        uses: actions/cache@v4
+        with:
+          path: .buildozer
+          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
+          restore-keys: |
+            ${{ runner.os }}-buildozer-
 
-# Screen orientation (Hamesha portrait rahega)
-orientation = portrait
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          # Maine yahan 'libunwind-dev' add kar diya hai jo error de raha tha
+          sudo apt-get install -y python3-pip build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libunwind-dev
+          pip install --upgrade pip
+          pip install buildozer cython==0.29.33 kivy
 
-# Android API Settings
-android.api = 33
-android.minapi = 21
-android.ndk = 25b
-android.skip_update = False
-android.accept_sdk_license = True
+      - name: Build APK with Buildozer
+        run: |
+          buildozer android debug || buildozer android debug
+        env:
+          BUILDOZER_ALLOW_ORG_NAME_AS_PROJECT_NAME: 1
 
-# Status bar ko dikhane ke liye
-fullscreen = 0
-
-[buildozer]
-# Log level 2 taaki error saaf dikhe
-log_level = 2
-warn_on_root = 1
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: StudyLike-PRO-APK
+          path: bin/*.apk
