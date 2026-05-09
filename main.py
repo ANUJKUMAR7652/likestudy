@@ -18,6 +18,7 @@ from kivy.utils import platform
 # ==========================================
 # 🌍 DIRECTORY & FONT SETUP
 # ==========================================
+# Sabse pehle curr_dir define karein taaki NameError na aaye
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 resource_add_path(curr_dir)
 
@@ -26,23 +27,29 @@ FONT_FILE = "hindi.ttf"  # Nayi Noto Sans file
 
 if os.path.exists(os.path.join(curr_dir, FONT_FILE)):
     LabelBase.register(name=U_FONT, fn_regular=FONT_FILE)
+    print(f"DEBUG: {FONT_FILE} registered successfully!")
 else:
-    # Fallback logic
+    # Fallback: Agar hindi.ttf na mile toh purani files try karein
     alt_fonts = ["universal.ttf", "devanagari.ttf"]
     found = False
     for f in alt_fonts:
         if os.path.exists(os.path.join(curr_dir, f)):
             LabelBase.register(name=U_FONT, fn_regular=f)
+            print(f"DEBUG: Falling back to {f}")
             found = True
             break
     if not found:
+        print("DEBUG: No Hindi font found, using Roboto")
         U_FONT = "Roboto"
 
 # ==========================================
 # 🧠 SCREENS LOGIC
 # ==========================================
-class HomeScreen(Screen): pass
-class ProfileScreen(Screen): pass
+class HomeScreen(Screen): 
+    pass
+
+class ProfileScreen(Screen): 
+    pass
 
 class QuizScreen(Screen):
     def __init__(self, **kw):
@@ -53,6 +60,7 @@ class QuizScreen(Screen):
         self.time_limit = 7.0
         self.last_tick_sec = 7
         
+        # Absolute path for sound stability on Android
         tick_p = os.path.abspath(os.path.join(curr_dir, 'tick.wav'))
         corr_p = os.path.abspath(os.path.join(curr_dir, 'correct.wav'))
         
@@ -63,6 +71,7 @@ class QuizScreen(Screen):
         if self.correct_snd: self.correct_snd.volume = 1.0
 
     def start_quiz(self, data):
+        # Header check: Agar pehli line mein 'Question' ya 'प्रश्न' hai toh skip karein
         if data and str(data[0][0]).lower() in ['q', 'question', 'प्रश्न', 'सवाल']:
             self.questions = data[1:]
         else:
@@ -79,7 +88,9 @@ class QuizScreen(Screen):
             self.ids.opt3.text = f"C: {q[3]}"
             self.ids.opt4.text = f"D: {q[4]}"
             self.correct_ans = str(q[5]).strip().upper()
-            self.ids.q_tracker.text = f"प्रश्न: {self.current_index + 1} / {len(self.questions)}"
+            
+            total_q = len(self.questions)
+            self.ids.q_tracker.text = f"प्रश्न: {self.current_index + 1} / {total_q}"
             
             self.reset_buttons()
             self.counter = self.time_limit
@@ -87,10 +98,13 @@ class QuizScreen(Screen):
             self.ids.timer_lbl.text = str(int(self.time_limit))
             self.ids.prog_bar.value = 100
             
-            if self.timer_event: self.timer_event.cancel()
+            if self.timer_event: 
+                self.timer_event.cancel()
             self.timer_event = Clock.schedule_interval(self.update_timer, 0.05)
         else:
             self.ids.q_text.text = "🎉 क्विज़ समाप्त! 🎉"
+            self.ids.timer_lbl.text = "0"
+            self.ids.prog_bar.value = 0
 
     def update_timer(self, dt):
         if self.counter > 0:
@@ -98,28 +112,42 @@ class QuizScreen(Screen):
             sec = int(math.ceil(self.counter))
             self.ids.timer_lbl.text = str(max(0, sec))
             self.ids.prog_bar.value = (self.counter / self.time_limit) * 100
+            
             if sec < self.last_tick_sec:
                 if self.tick_snd: self.tick_snd.play()
                 self.last_tick_sec = sec
         else:
+            self.ids.prog_bar.value = 0
             self.reveal_correct()
             return False
 
     def check_answer(self, choice):
         if self.timer_event: self.timer_event.cancel()
+        if self.tick_snd: self.tick_snd.stop()
+            
         mapping = {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}
+        
         if choice != self.correct_ans and choice in mapping:
-            self.ids[mapping[choice]].md_bg_color = (0.8, 0, 0, 1)
+            self.ids[mapping[choice]].md_bg_color = (0.8, 0, 0, 1) # Red
+            
         if self.correct_ans in mapping:
-            self.ids[mapping[self.correct_ans]].md_bg_color = (0, 0.8, 0, 1)
-            if self.correct_snd: self.correct_snd.play()
+            self.ids[mapping[self.correct_ans]].md_bg_color = (0, 0.8, 0, 1) # Green
+            if self.correct_snd: 
+                self.correct_snd.stop()
+                self.correct_snd.play()
+                
         Clock.schedule_once(lambda dt: self.next_q(), 2)
 
     def reveal_correct(self):
+        if self.tick_snd: self.tick_snd.stop()
         mapping = {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}
+        
         if self.correct_ans in mapping:
             self.ids[mapping[self.correct_ans]].md_bg_color = (0, 0.8, 0, 1)
-            if self.correct_snd: self.correct_snd.play()
+            if self.correct_snd: 
+                self.correct_snd.stop()
+                self.correct_snd.play()
+                
         Clock.schedule_once(lambda dt: self.next_q(), 2)
 
     def next_q(self):
@@ -132,6 +160,7 @@ class QuizScreen(Screen):
 
     def stop_quiz(self):
         if self.timer_event: self.timer_event.cancel()
+        if self.tick_snd: self.tick_snd.stop()
 
 # ==========================================
 # 🎨 UI DESIGN (KV)
@@ -143,6 +172,7 @@ KV = f'''
         md_bg_color: 0.05, 0.05, 0.1, 1
         MDTopAppBar:
             title: "StudyLike PRO"
+            elevation: 4
             md_bg_color: 0, 0.5, 0.8, 1
             right_action_items: [["account-cog-outline", lambda x: app.go_profile()]]
         MDBoxLayout:
@@ -162,6 +192,8 @@ KV = f'''
                 font_name: "{U_FONT}"
                 theme_text_color: "Custom"
                 text_color: 1, 0, 1, 1
+                size_hint_y: None
+                height: dp(30)
             MDScrollView:
                 MDBoxLayout:
                     id: file_list
@@ -173,7 +205,8 @@ KV = f'''
     MDBoxLayout:
         orientation: 'vertical'
         md_bg_color: 0, 0, 0, 1
-        padding: dp(15)
+        padding: [dp(20), dp(40), dp(20), dp(20)]
+        spacing: dp(15)
         MDLabel:
             id: timer_lbl
             text: "7"
@@ -181,14 +214,22 @@ KV = f'''
             font_style: "H3"
             theme_text_color: "Custom"
             text_color: 1, 0, 1, 1
+            size_hint_y: None
+            height: dp(50)
         MDProgressBar:
             id: prog_bar
             value: 100
+            size_hint_y: None
+            height: dp(8)
         MDLabel:
             id: q_tracker
             text: ""
             halign: "center"
             font_name: "{U_FONT}"
+            theme_text_color: "Custom"
+            text_color: 0, 1, 1, 1
+            size_hint_y: None
+            height: dp(20)
         MDCard:
             size_hint: 1, 0.4
             md_bg_color: 0.1, 0.1, 0.25, 1
@@ -205,6 +246,7 @@ KV = f'''
         MDBoxLayout:
             orientation: 'vertical'
             spacing: dp(10)
+            padding: [0, dp(10)]
             MDRaisedButton:
                 id: opt1
                 text: "Option A"
@@ -231,6 +273,9 @@ KV = f'''
                 on_release: root.check_answer("D")
         MDIconButton:
             icon: "home-circle"
+            theme_icon_color: "Custom"
+            icon_color: 1, 1, 1, 1
+            icon_size: "40sp"
             pos_hint: {{"center_x": .5}}
             on_release: app.go_home_from_quiz()
 
@@ -238,19 +283,46 @@ KV = f'''
     MDBoxLayout:
         orientation: 'vertical'
         md_bg_color: 0.05, 0.05, 0.1, 1
-        MDLabel:
-            text: "Settings"
-            halign: "center"
-            font_name: "{U_FONT}"
-        MDFillRoundFlatButton:
-            text: "BACK"
-            on_release: app.go_home()
+        MDTopAppBar:
+            title: "Settings"
+            md_bg_color: 0.1, 0.1, 0.2, 1
+            elevation: 0
+        MDBoxLayout:
+            orientation: 'vertical'
+            padding: dp(20)
+            spacing: dp(20)
+            MDIcon:
+                icon: "account-circle"
+                font_size: "100sp"
+                halign: "center"
+                theme_text_color: "Custom"
+                text_color: 0, 1, 1, 1
+            MDLabel:
+                text: "StudyLike PRO v1.0"
+                halign: "center"
+                font_name: "{U_FONT}"
+                font_style: "H5"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+            Widget:
+            MDFillRoundFlatIconButton:
+                icon: "home"
+                text: "BACK TO HOME"
+                font_name: "{U_FONT}"
+                pos_hint: {{"center_x": .5}}
+                size_hint_x: 0.8
+                md_bg_color: 0, 0.5, 0.8, 1
+                on_release: app.go_home()
 '''
 
+# ==========================================
+# ⚙️ MAIN APP CLASS
+# ==========================================
 class LikeStudyApp(MDApp):
     def build(self):
         self.theme_cls.theme_style = "Dark"
         self.theme_cls.primary_palette = "Cyan"
+        
         self.theme_cls.font_styles["H3"] = [U_FONT, 48, False, 0.15]
         self.theme_cls.font_styles["H5"] = [U_FONT, 24, False, 0.15]
         self.theme_cls.font_styles["H6"] = [U_FONT, 20, False, 0.15]
@@ -272,8 +344,11 @@ class LikeStudyApp(MDApp):
         if platform == 'android':
             from android.permissions import request_permissions, Permission
             from android import api_version
+            
+            # Request basic storage permissions safely
             request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
             
+            # Android 11+ (API 30+) Manage All Files permission request
             if api_version >= 30:
                 from jnius import autoclass
                 Environment = autoclass('android.os.Environment')
@@ -282,9 +357,13 @@ class LikeStudyApp(MDApp):
                     Intent = autoclass('android.content.Intent')
                     Settings = autoclass('android.provider.Settings')
                     Uri = autoclass('android.net.Uri')
-                    uri = Uri.parse("package:" + PythonActivity.mActivity.getPackageName())
-                    intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri)
-                    PythonActivity.mActivity.startActivity(intent)
+                    try:
+                        uri = Uri.parse("package:" + PythonActivity.mActivity.getPackageName())
+                        intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION, uri)
+                        PythonActivity.mActivity.startActivity(intent)
+                    except:
+                        intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION)
+                        PythonActivity.mActivity.startActivity(intent)
 
     def open_file_manager(self):
         path = '/storage/emulated/0/' if platform == 'android' else os.getcwd()
@@ -294,24 +373,33 @@ class LikeStudyApp(MDApp):
         self.close_file_manager()
         if path.endswith('.csv'):
             home_screen = self.manager.get_screen('home')
-            card = MDCard(size_hint_y=None, height=dp(60), md_bg_color=(0.1, 0.1, 0.25, 1), padding=dp(10))
+            card = MDCard(size_hint_y=None, height=dp(60), md_bg_color=(0.1, 0.1, 0.25, 1), padding=dp(10), radius=[10,])
             lbl = MDLabel(text=os.path.basename(path), font_name=U_FONT, theme_text_color="Custom", text_color=(1,1,1,1))
-            play_btn = MDIconButton(icon="play-circle", text_color=(0, 1, 0, 1), theme_text_color="Custom")
+            play_btn = MDIconButton(icon="play-circle", theme_text_color="Custom", text_color=(0, 1, 0, 1))
             play_btn.bind(on_release=lambda x, p=path: self.play_quiz(p))
-            card.add_widget(lbl); card.add_widget(play_btn)
+            card.add_widget(lbl)
+            card.add_widget(play_btn)
             home_screen.ids.file_list.add_widget(card)
 
     def play_quiz(self, path):
         try:
+            # utf-8-sig is best for reading Hindi/Devanagari CSV files safely
             with open(path, mode='r', encoding='utf-8-sig') as f:
                 data = list(csv.reader(f))
                 self.manager.get_screen('quiz').start_quiz(data)
                 self.manager.current = 'quiz'
-        except Exception as e: print(f"Error: {e}")
+        except Exception as e:
+            print(f"Error reading CSV: {e}")
 
-    def close_file_manager(self, *args): self.file_manager.close()
-    def go_home(self): self.manager.current = 'home'
-    def go_profile(self): self.manager.current = 'profile'
+    def close_file_manager(self, *args):
+        self.file_manager.close()
+
+    def go_home(self):
+        self.manager.current = 'home'
+
+    def go_profile(self):
+        self.manager.current = 'profile'
+
     def go_home_from_quiz(self):
         self.manager.get_screen('quiz').stop_quiz()
         self.manager.current = 'home'
