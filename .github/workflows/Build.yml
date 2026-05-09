@@ -12,11 +12,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build APK with Buildozer Action
-        # Ye action sabse stable hai aur API levels khud handle karta hai
-        uses: digiampifa/buildozer-action@v2
+      # 🚀 Official Kivy Buildozer Action - Sabse Reliable tareeka
+      - name: Build with Buildozer
+        uses: kivy/buildozer-action@v1
         with:
-          buildozer_version: stable
+          save_buildozer_config: false
           python_version: 3.11
-          # Ye command licenses ko accept karega aur API 33 ko handle karega
-          command: buildozer android debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: StudyLike-PRO-APK
+          path: bin/*.apk
