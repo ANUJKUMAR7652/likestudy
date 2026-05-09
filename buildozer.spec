@@ -8,40 +8,23 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      # Yeh step seedha Docker container bulayega jisme sab kuch pehle se install hai!
+      - name: Build with Buildozer
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
         with:
-          python-version: '3.11'
-
-      # Cache ka naam badal diya (v2) taaki fresh start ho
-      - name: Cache Buildozer data
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-v2-${{ hashFiles('buildozer.spec') }}
-
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          # Sirf Android build ke liye zaroori tools (Bina kisi video/audio conflict ke)
-          sudo apt-get install -y zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev openjdk-17-jdk
-          pip install --upgrade pip
-          pip install buildozer cython==0.29.33 kivy
-
-      - name: Build APK with Buildozer
-        run: |
-          buildozer android debug
-        env:
-          BUILDOZER_ALLOW_ORG_NAME_AS_PROJECT_NAME: 1
+          command: buildozer android debug
+          buildozer_version: master
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: StudyLike-PRO-APK
-          path: bin/*.apk
+          # Yeh naya code khud dhundh lega ki APK kahan bana hai
+          path: ${{ steps.buildozer.outputs.filename }}
