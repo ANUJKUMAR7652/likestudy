@@ -12,14 +12,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🚀 Sabse stable aur verified Buildozer Action
       - name: Build APK using Buildozer
         uses: digreatbrian/buildozer-action@v2
         with:
           python-version: 3.11
           buildozer-cmd: buildozer android debug
 
-      # 📦 APK banne ke baad yahan save hoga
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
