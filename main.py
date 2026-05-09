@@ -18,14 +18,10 @@ from kivy.uix.button import Button
 from kivy.utils import platform
 
 # ==========================================
+# 🌍 FONT SETUP (Update)
 # ==========================================
-# 🌍 FONT SETUP - Isse Hindi dikhegi
-# ==========================================
-curr_dir = os.path.dirname(os.path.abspath(__file__))
-resource_add_path(curr_dir)
-
 U_FONT = "HindiFont"
-FONT_FILE = "universal.ttf" # GitHub wala sahi naam
+FONT_FILE = "hindi.ttf" # Naya download kiya hua font
 
 if os.path.exists(os.path.join(curr_dir, FONT_FILE)):
     LabelBase.register(name=U_FONT, fn_regular=FONT_FILE)
