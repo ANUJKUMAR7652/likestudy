@@ -23,12 +23,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Cache Buildozer data
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-v6-${{ hashFiles('buildozer.spec') }}
-
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -36,10 +30,20 @@ jobs:
           pip install --upgrade pip
           pip install "buildozer>=1.5.0" cython==0.29.33 kivy
 
+      # 🚀 YEH STEP SABSE ZAROORI HAI: API 33 ko manual install karna
+      - name: Install Android SDK Platform 33
+        run: |
+          mkdir -p ~/.buildozer/android/platform/android-sdk/platforms
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$ANDROID_HOME "platforms;android-33" "build-tools;33.0.0" "platform-tools"
+
       - name: Build APK with Buildozer
-        run: yes | buildozer android debug
+        # "yes |" ko hata kar hum buildozer ke andar ki license handling use karenge
+        run: buildozer android debug
         env:
           BUILDOZER_ALLOW_ORG_NAME_AS_PROJECT_NAME: 1
+          # GitHub ke pre-installed SDK ka rasta dena
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_HOME }}
+          ANDROID_NDK_ROOT: ${{ env.ANDROID_NDK_HOME }}
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
