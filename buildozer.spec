@@ -19,19 +19,18 @@ jobs:
         with:
           python-version: '3.11'
 
+      # Cache ka naam badal diya (v2) taaki fresh start ho
       - name: Cache Buildozer data
         uses: actions/cache@v4
         with:
           path: .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
+          key: ${{ runner.os }}-buildozer-v2-${{ hashFiles('buildozer.spec') }}
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          # GStreamer packages ko hata diya gaya hai taaki 'broken package' ka error na aaye
-          sudo apt-get install -y python3-pip build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+          # Sirf Android build ke liye zaroori tools (Bina kisi video/audio conflict ke)
+          sudo apt-get install -y zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev openjdk-17-jdk
           pip install --upgrade pip
           pip install buildozer cython==0.29.33 kivy
 
