@@ -9,18 +9,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 🚀 Official Kivy Buildozer Action - Sabse Reliable tareeka
-      - name: Build with Buildozer
-        uses: kivy/buildozer-action@v1
+      # 🚀 Sabse stable aur verified Buildozer Action
+      - name: Build APK using Buildozer
+        uses: digreatbrian/buildozer-action@v2
         with:
-          save_buildozer_config: false
-          python_version: 3.11
+          python-version: 3.11
+          buildozer-cmd: buildozer android debug
 
-      - name: Upload APK
+      # 📦 APK banne ke baad yahan save hoga
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: StudyLike-PRO-APK
-          path: bin/*.apk
+          path: ./bin/*.apk
