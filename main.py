@@ -182,37 +182,53 @@ KV = f'''
 <QuizScreen>:
     MDBoxLayout:
         orientation: 'vertical'
-        md_bg_color: 0, 0, 0, 1
+        # Dark Futuristic Background (Deep Navy/Black)
+        md_bg_color: 0.05, 0.05, 0.08, 1
         padding: [dp(20), dp(40), dp(20), dp(20)]
         spacing: dp(15)
+
+        # Neon Pink Timer
         MDLabel:
             id: timer_lbl
             text: "7"
             halign: "center"
-            font_style: "H3"
+            font_style: "H2"  # Bada aur bold feel ke liye
             theme_text_color: "Custom"
-            text_color: 1, 0, 1, 1
+            text_color: 1, 0.2, 0.6, 1  # Neon Pink glow
             size_hint_y: None
-            height: dp(50)
+            height: dp(60)
+
+        # Neon Cyan Progress Bar
         MDProgressBar:
             id: prog_bar
             value: 100
             size_hint_y: None
             height: dp(8)
+            color: 0, 1, 1, 1  # Electric Cyan
+            type: "determinate"
+
+        # Question Tracker
         MDLabel:
             id: q_tracker
             text: ""
             halign: "center"
             font_name: "{U_FONT}"
             theme_text_color: "Custom"
-            text_color: 0, 1, 1, 1
+            text_color: 0.6, 1, 0.2, 1  # Neon Green
             size_hint_y: None
             height: dp(20)
+
+        # Question Card with Neon Border
         MDCard:
             size_hint: 1, 0.4
-            md_bg_color: 0.1, 0.1, 0.25, 1
-            radius: [15,]
-            padding: dp(15)
+            md_bg_color: 0.1, 0.1, 0.15, 1  # Slightly lighter dark box
+            radius: [20,]
+            padding: dp(20)
+            elevation: 2
+            shadow_color: 0, 1, 1, 0.4  # Cyan shadow for glow effect
+            line_color: 0, 1, 1, 0.8    # Neon Cyan Border
+            line_width: 1.5
+
             MDLabel:
                 id: q_text
                 text: "Loading..."
@@ -221,42 +237,70 @@ KV = f'''
                 font_style: "H5"
                 theme_text_color: "Custom"
                 text_color: 1, 1, 1, 1
+                bold: True
+
         MDBoxLayout:
             orientation: 'vertical'
-            spacing: dp(10)
-            padding: [0, dp(10)]
-            MDRaisedButton:
+            spacing: dp(15)
+            padding: [0, dp(15)]
+
+            # Option Buttons with Multi-color Neon Outlines
+            MDRoundFlatButton:
                 id: opt1
                 text: "Option A"
-                size_hint: 1, 1
+                size_hint: 1, None
+                height: dp(50)
                 font_name: "{U_FONT}"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                line_color: 1, 0, 1, 1  # Neon Pink Border
+                line_width: 1.2
                 on_release: root.check_answer("A")
-            MDRaisedButton:
+
+            MDRoundFlatButton:
                 id: opt2
                 text: "Option B"
-                size_hint: 1, 1
+                size_hint: 1, None
+                height: dp(50)
                 font_name: "{U_FONT}"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                line_color: 1, 0.8, 0, 1  # Neon Yellow/Gold Border
+                line_width: 1.2
                 on_release: root.check_answer("B")
-            MDRaisedButton:
+
+            MDRoundFlatButton:
                 id: opt3
                 text: "Option C"
-                size_hint: 1, 1
+                size_hint: 1, None
+                height: dp(50)
                 font_name: "{U_FONT}"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                line_color: 0, 1, 0.5, 1  # Neon Spring Green Border
+                line_width: 1.2
                 on_release: root.check_answer("C")
-            MDRaisedButton:
+
+            MDRoundFlatButton:
                 id: opt4
                 text: "Option D"
-                size_hint: 1, 1
+                size_hint: 1, None
+                height: dp(50)
                 font_name: "{U_FONT}"
+                theme_text_color: "Custom"
+                text_color: 1, 1, 1, 1
+                line_color: 0.2, 0.6, 1, 1  # Neon Blue Border
+                line_width: 1.2
                 on_release: root.check_answer("D")
-        MDIconButton:
-            icon: "home-circle"
-            theme_icon_color: "Custom"
-            icon_color: 1, 1, 1, 1
-            icon_size: "40sp"
-            pos_hint: {{"center_x": .5}}
-            on_release: app.go_home_from_quiz()
 
+        # Sleek Neon Home Button
+        MDIconButton:
+            icon: "home-circle-outline"
+            theme_icon_color: "Custom"
+            icon_color: 0, 1, 1, 1  # Match with card border
+            icon_size: "45sp"
+            pos_hint: {"center_x": .5}
+            on_release: app.go_home_from_quiz()
 <ProfileScreen>:
     MDBoxLayout:
         orientation: 'vertical'
