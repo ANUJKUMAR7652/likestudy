@@ -8,7 +8,6 @@ on:
 
 jobs:
   build:
-    # 22.04 sabse stable hai Buildozer ke liye
     runs-on: ubuntu-22.04
 
     steps:
@@ -20,7 +19,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      # 🚀 TURBO ENGINE (Fresh Start ke liye ise pehli baar chalne dein)
       - name: Cache Buildozer data
         uses: actions/cache@v4
         with:
