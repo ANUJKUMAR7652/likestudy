@@ -17,7 +17,7 @@ version = 1.0
 requirements = python3, kivy==2.3.0, kivymd, pillow==10.2.0, urllib3
 
 # File manager aur quiz ke liye storage permissions
-android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE
+android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
 
 # Screen orientation (Phone ke hisaab se portrait)
 orientation = portrait
