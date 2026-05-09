@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [ main ]
 
+# Isse Node.js wali warning band ho jayegi
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -17,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Is step mein sab kuch pehle se install hai, humein kuch nahi karna padega
+      # 🚀 Yeh hai asli "Brahmastra". Isme dependencies install karne ka jhanjhat hi nahi hai.
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
