@@ -49,14 +49,21 @@ class QuizScreen(Screen):
         self.time_limit = 7.0  
         self.last_tick_sec = 7 
         
-        tick_path = os.path.join(curr_dir, 'tick.wav')
-        correct_path = os.path.join(curr_dir, 'correct.wav')
+        # 📂 Sound Paths: Absolute paths use karna Android par safe hota hai
+        tick_path = os.path.abspath(os.path.join(curr_dir, 'tick.wav'))
+        correct_path = os.path.abspath(os.path.join(curr_dir, 'correct.wav'))
         
+        # 🔊 Sound Loading
         self.tick_snd = SoundLoader.load(tick_path) if os.path.exists(tick_path) else None
         self.correct_snd = SoundLoader.load(correct_path) if os.path.exists(correct_path) else None
+        
+        # Volume set karna zaroori hai
+        if self.tick_snd: self.tick_snd.volume = 1.0
+        if self.correct_snd: self.correct_snd.volume = 1.0
 
     def start_quiz(self, data):
-        if data and data[0][0].lower() in ['q', 'question', 'प्रश्न', 'सवाल']:
+        # 📋 Header skip logic
+        if data and str(data[0][0]).lower() in ['q', 'question', 'प्रश्न', 'सवाल']:
             self.questions = data[1:]
         else:
             self.questions = data
@@ -73,9 +80,9 @@ class QuizScreen(Screen):
             self.ids.opt4.text = f"D: {q[4]}"
             self.correct_ans = str(q[5]).strip().upper()
             
+            # Tracker update
             total_q = len(self.questions)
-            curr_q = self.current_index + 1
-            self.ids.q_tracker.text = f"प्रश्न: {curr_q} / {total_q}"
+            self.ids.q_tracker.text = f"प्रश्न: {self.current_index + 1} / {total_q}"
             
             self.reset_buttons()
             self.counter = self.time_limit
@@ -88,7 +95,6 @@ class QuizScreen(Screen):
             self.timer_event = Clock.schedule_interval(self.update_timer, 0.05)
         else:
             self.ids.q_text.text = "🎉 क्विज़ समाप्त! 🎉"
-            self.ids.q_tracker.text = "All Done!"
             self.ids.timer_lbl.text = "0"
             self.ids.prog_bar.value = 0
 
@@ -99,6 +105,7 @@ class QuizScreen(Screen):
             self.ids.timer_lbl.text = str(max(0, current_sec))
             self.ids.prog_bar.value = (self.counter / self.time_limit) * 100
             
+            # 🕒 Har second par Tick sound bajana
             if current_sec < self.last_tick_sec:
                 if self.tick_snd: self.tick_snd.play()
                 self.last_tick_sec = current_sec
@@ -112,13 +119,16 @@ class QuizScreen(Screen):
         if self.tick_snd: self.tick_snd.stop()
             
         mapping = {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}
-        if choice != self.correct_ans:
+        
+        # ❌ Galat jawab par Red color
+        if choice != self.correct_ans and choice in mapping:
             self.ids[mapping[choice]].md_bg_color = (0.8, 0, 0, 1)
             
+        # ✅ Sahi jawab par Green color aur Sound
         if self.correct_ans in mapping:
             self.ids[mapping[self.correct_ans]].md_bg_color = (0, 0.8, 0, 1)
             if self.correct_snd:
-                self.correct_snd.stop()
+                self.correct_snd.stop() # Pehle se chal raha ho toh rok dein
                 self.correct_snd.play()
             
         Clock.schedule_once(lambda dt: self.next_q(), 2)
@@ -129,9 +139,7 @@ class QuizScreen(Screen):
         
         if self.correct_ans in mapping:
             self.ids[mapping[self.correct_ans]].md_bg_color = (0, 0.8, 0, 1)
-            if self.correct_snd:
-                self.correct_snd.stop()
-                self.correct_snd.play()
+            if self.correct_snd: self.correct_snd.play()
                 
         Clock.schedule_once(lambda dt: self.next_q(), 2)
 
@@ -142,7 +150,6 @@ class QuizScreen(Screen):
     def reset_buttons(self):
         for i in range(1, 5):
             self.ids[f'opt{i}'].md_bg_color = (0.15, 0.25, 0.45, 1)
-            self.ids[f'opt{i}'].disabled = False
 
     def stop_quiz(self):
         if self.timer_event: self.timer_event.cancel()
