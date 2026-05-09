@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+# Yeh line Node.js wali warning ko hamesha ke liye band kar degi
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,7 +18,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Yeh step seedha Docker container bulayega jisme sab kuch pehle se install hai!
+      # Yahan humne saare apt-get hata diye aur seedha official machine lagayi hai
       - name: Build with Buildozer
         uses: ArtemSBulgakov/buildozer-action@v1
         id: buildozer
@@ -26,5 +30,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: StudyLike-PRO-APK
-          # Yeh naya code khud dhundh lega ki APK kahan bana hai
+          # Yeh command automatic aapka APK dhundh kar upload kar degi
           path: ${{ steps.buildozer.outputs.filename }}
