@@ -7,8 +7,8 @@ source.include_exts = py,png,jpg,kv,atlas,ttf,wav,csv
 version = 1.0
 
 # Dependencies (Sound aur Hindi font dono supported hain)
-requirements = python3, kivy==2.3.0, kivymd, pillow==10.2.0, urllib3, ffpyplayer
 
+requirements = python3, kivy, kivymd, pillow, urllib3, cython==0.29.33, ffpyplayer
 android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
 orientation = portrait
 android.api = 33
