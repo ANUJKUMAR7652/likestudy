@@ -16,40 +16,24 @@ from kivy.metrics import dp
 from kivy.utils import platform
 
 # ==========================================
-# 🌍 DIRECTORY & FONT SETUP
+# 🌍 DIRECTORY & FONT SETUP (No NameError)
 # ==========================================
-# Sabse pehle curr_dir define karein taaki NameError na aaye
 curr_dir = os.path.dirname(os.path.abspath(__file__))
 resource_add_path(curr_dir)
 
 U_FONT = "HindiFont"
-FONT_FILE = "hindi.ttf"  # Nayi Noto Sans file
+FONT_FILE = "hindi.ttf"  
 
 if os.path.exists(os.path.join(curr_dir, FONT_FILE)):
     LabelBase.register(name=U_FONT, fn_regular=FONT_FILE)
-    print(f"DEBUG: {FONT_FILE} registered successfully!")
 else:
-    # Fallback: Agar hindi.ttf na mile toh purani files try karein
-    alt_fonts = ["universal.ttf", "devanagari.ttf"]
-    found = False
-    for f in alt_fonts:
-        if os.path.exists(os.path.join(curr_dir, f)):
-            LabelBase.register(name=U_FONT, fn_regular=f)
-            print(f"DEBUG: Falling back to {f}")
-            found = True
-            break
-    if not found:
-        print("DEBUG: No Hindi font found, using Roboto")
-        U_FONT = "Roboto"
+    U_FONT = "Roboto"
 
 # ==========================================
 # 🧠 SCREENS LOGIC
 # ==========================================
-class HomeScreen(Screen): 
-    pass
-
-class ProfileScreen(Screen): 
-    pass
+class HomeScreen(Screen): pass
+class ProfileScreen(Screen): pass
 
 class QuizScreen(Screen):
     def __init__(self, **kw):
@@ -60,7 +44,6 @@ class QuizScreen(Screen):
         self.time_limit = 7.0
         self.last_tick_sec = 7
         
-        # Absolute path for sound stability on Android
         tick_p = os.path.abspath(os.path.join(curr_dir, 'tick.wav'))
         corr_p = os.path.abspath(os.path.join(curr_dir, 'correct.wav'))
         
@@ -71,7 +54,6 @@ class QuizScreen(Screen):
         if self.correct_snd: self.correct_snd.volume = 1.0
 
     def start_quiz(self, data):
-        # Header check: Agar pehli line mein 'Question' ya 'प्रश्न' hai toh skip karein
         if data and str(data[0][0]).lower() in ['q', 'question', 'प्रश्न', 'सवाल']:
             self.questions = data[1:]
         else:
@@ -89,8 +71,7 @@ class QuizScreen(Screen):
             self.ids.opt4.text = f"D: {q[4]}"
             self.correct_ans = str(q[5]).strip().upper()
             
-            total_q = len(self.questions)
-            self.ids.q_tracker.text = f"प्रश्न: {self.current_index + 1} / {total_q}"
+            self.ids.q_tracker.text = f"प्रश्न: {self.current_index + 1} / {len(self.questions)}"
             
             self.reset_buttons()
             self.counter = self.time_limit
@@ -98,8 +79,7 @@ class QuizScreen(Screen):
             self.ids.timer_lbl.text = str(int(self.time_limit))
             self.ids.prog_bar.value = 100
             
-            if self.timer_event: 
-                self.timer_event.cancel()
+            if self.timer_event: self.timer_event.cancel()
             self.timer_event = Clock.schedule_interval(self.update_timer, 0.05)
         else:
             self.ids.q_text.text = "🎉 क्विज़ समाप्त! 🎉"
@@ -141,13 +121,11 @@ class QuizScreen(Screen):
     def reveal_correct(self):
         if self.tick_snd: self.tick_snd.stop()
         mapping = {"A": "opt1", "B": "opt2", "C": "opt3", "D": "opt4"}
-        
         if self.correct_ans in mapping:
             self.ids[mapping[self.correct_ans]].md_bg_color = (0, 0.8, 0, 1)
             if self.correct_snd: 
                 self.correct_snd.stop()
                 self.correct_snd.play()
-                
         Clock.schedule_once(lambda dt: self.next_q(), 2)
 
     def next_q(self):
@@ -344,11 +322,8 @@ class LikeStudyApp(MDApp):
         if platform == 'android':
             from android.permissions import request_permissions, Permission
             from android import api_version
-            
-            # Request basic storage permissions safely
             request_permissions([Permission.READ_EXTERNAL_STORAGE, Permission.WRITE_EXTERNAL_STORAGE])
             
-            # Android 11+ (API 30+) Manage All Files permission request
             if api_version >= 30:
                 from jnius import autoclass
                 Environment = autoclass('android.os.Environment')
@@ -383,7 +358,6 @@ class LikeStudyApp(MDApp):
 
     def play_quiz(self, path):
         try:
-            # utf-8-sig is best for reading Hindi/Devanagari CSV files safely
             with open(path, mode='r', encoding='utf-8-sig') as f:
                 data = list(csv.reader(f))
                 self.manager.get_screen('quiz').start_quiz(data)
