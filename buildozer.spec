@@ -1,50 +1,35 @@
-name: Build APK with Buildozer
+[app]
+# App ka naam
+title = StudyLike PRO
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+# Package ka naam (Space nahi hona chahiye)
+package.name = studylikepro
+package.domain = org.studylike
 
-jobs:
-  build:
-    runs-on: ubuntu-22.04
+# Kahan se files uthani hain
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas,ttf,wav,csv
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+# App ka version
+version = 1.0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
+# 🚀 Sabse important: Requirements (KivyMD aur baaki cheezein)
+requirements = python3, kivy==2.3.0, kivymd, pillow==10.2.0, urllib3
 
-      - name: Cache Buildozer data
-        uses: actions/cache@v4
-        with:
-          path: .buildozer
-          key: ${{ runner.os }}-buildozer-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-buildozer-
+# 🛑 File manager ke liye MANAGE_EXTERNAL_STORAGE bohot zaroori hai
+android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          # Force fix for broken dependencies
-          sudo apt-get install -y -f
-          sudo apt-get install -y python3-pip build-essential git python3 python3-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libunwind-dev
-          pip install --upgrade pip
-          pip install buildozer cython==0.29.33 kivy
+# Screen orientation (Phone ke hisaab se portrait)
+orientation = portrait
 
-      - name: Build APK with Buildozer
-        run: |
-          # Yahan 'yes' command hatakar simple rakha hai taaki pipe error na aaye
-          buildozer android debug
-        env:
-          BUILDOZER_ALLOW_ORG_NAME_AS_PROJECT_NAME: 1
+# Android API Target
+android.api = 34
+android.minapi = 21
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: StudyLike-PRO-APK
-          path: bin/*.apk
+# 🛑 YAHAN HAI SABSE ZAROORI LINE
+android.accept_sdk_license = True
+
+[buildozer]
+# Log level
+log_level = 2
+warn_on_root = 1
