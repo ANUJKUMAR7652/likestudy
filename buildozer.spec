@@ -8,7 +8,7 @@ version = 1.0
 
 # Dependencies (Sound aur Hindi font dono supported hain)
 
-requirements = python3, kivy, kivymd, pillow, urllib3, cython==0.29.33, ffpyplayer
+requirements = python3, kivy, kivymd, pillow, urllib3, cython==0.29.33
 android.permissions = READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, MANAGE_EXTERNAL_STORAGE
 orientation = portrait
 android.api = 33
